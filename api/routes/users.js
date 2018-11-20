@@ -2,23 +2,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 
-const Game = require('../models/games');
+const User = require('../models/users');
 
 router.get('/', (req, res, next) => {
-  Game.find()
+  User.find()
     .select()
     .exec()
     .then(docs => {
       const response = {
         count: docs.length,
-        games: docs.map(doc => {
+        users: docs.map(doc => {
           return {
             name: doc.name,
-            gameImage: doc.gameImage,
+            userImage: doc.userImage,
             _id: doc._id,
             request: {
               type: 'GET',
-              url: 'http://localhost:3000/games/' + doc._id
+              url: 'http://localhost:3000/users/' + doc._id
             }
           }
         })
@@ -34,24 +34,24 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  const game = new Game({
+  const user = new User({
     _id: mongoose.Types.ObjectId(),
     name: req.body.name,
-    gameImage: req.body.gameImage
+    email: req.body.email
   });
-  game
+  user
     .save()
     .then(result => {
       console.log(result);
       res.status(201).json({
-        message: 'Created game successfully',
-        createdGame: {
+        message: 'Created user successfully',
+        createdUser: {
           name: result.name,
-          gameImage: result.gameImage,
+          email: result.email,
           _id: result._id,
           request: {
             type: 'GET',
-            url: "http://localhost:3000/games/" + result._id
+            url: "http://localhost:3000/users/" + result._id
           }
         }
       });
@@ -62,22 +62,21 @@ router.post('/', (req, res, next) => {
         error: err.message
       });
     })
-
 });
 
-router.get('/:gameId', (req, res, next) => {
-  const id = req.params.gameId;
-  Game.findById(id)
-    .select('name _id')
+router.get('/:userId', (req, res, next) => {
+  const id = req.params.userId;
+  User.findById(id)
+    .select('name email _id')
     .exec()
     .then(doc => {
       console.log("From database", doc);
       if (doc) {
         res.status(200).json({
-          game: doc,
+          user: doc,
           request: {
             type: 'GET',
-            url: 'http://localhost:3000/games'
+            url: 'http://localhost:3000/users'
           }
         });
       } else {
@@ -92,42 +91,16 @@ router.get('/:gameId', (req, res, next) => {
     });
 });
 
-router.patch('/:gameId', (req, res, next) => {
-  const id = req.params.gameId;
-  Game
-    .updateOne(
-      { _id: id },
-      { $set: { name: req.body.newName } }
-    )
-    .exec()
-    .then(result => {
-      console.log(result);
-      res.status(200).json({
-        message: 'Game updated',
-        request: {
-          type: 'GET',
-          url: 'http://localhost:3000/games/' + id
-        }
-      });
-    })
-    .catch(err => {
-      console.log(err.message);
-      res.status(500).json({
-        error: err.message
-      });
-    });
-});
-
-router.delete('/:gameId', (req, res, next) => {
-  const id = req.params.gameId;
-  Game.deleteOne({ _id: id })
+router.delete('/:userId', (req, res, next) => {
+  const id = req.params.userId;
+  User.deleteOne({ _id: id })
     .exec()
     .then(result => {
       res.status(200).json({
-        message: 'Game deleted',
+        message: 'User deleted',
         request: {
           type: 'POST',
-          url: 'http://localhost:3000/games',
+          url: 'http://localhost:3000/users',
           body: { name: 'String', price: 'Number' }
         }
       });
