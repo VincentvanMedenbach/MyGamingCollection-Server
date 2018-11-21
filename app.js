@@ -8,6 +8,7 @@ const app = express();
 const accessoryRoutes = require('./api/routes/accessories');
 const consoleRoutes = require('./api/routes/consoles');
 const gameRoutes = require('./api/routes/games');
+const userRoutes = require('./api/routes/users');
 
 //  connect to db
 mongoose.connect(
@@ -36,6 +37,7 @@ app.use((req, res, next) => {
 app.use('/accessories', accessoryRoutes);
 app.use('/consoles', consoleRoutes);
 app.use('/games', gameRoutes);
+app.use('/users', userRoutes);
 
 //  route does not exist
 app.use((req, res, next) => {
